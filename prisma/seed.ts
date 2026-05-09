@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 
 async function seed() {
 
+  
 
 
   const user1 = await prisma.user.create({

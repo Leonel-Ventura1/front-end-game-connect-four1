@@ -28,7 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/games', gameRoutes);
 
-app.get('/health', (res) => {
+app.get('/health', (res: express.Response) => {
   res.json({ status: 'ok' });
 });
 

@@ -107,21 +107,8 @@ const moves =
   const engine = new GameEngine(
   game.player1Id,
   game.player2Id || game.player1Id,
-
   board || undefined,
-
-  moves || [],
-
-  game.currentPlayer as
-    | 'player1'
-    | 'player2',
-
-  game.status as
-    | 'playing'
-    | 'completed'
-    | 'draw',
-
-  game.winnerId || undefined
+  moves || []
 );
 
     const result = engine.makeMove(column, playerId);
