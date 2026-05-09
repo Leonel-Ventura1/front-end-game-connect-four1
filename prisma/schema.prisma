@@ -1,0 +1,115 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  avatar       String   @default("https://api.dicebear.com/7.x/avataaars/svg?seed=")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  stats        UserStats?
+  player1Games Game[]    @relation("Player1")
+  player2Games Game[]    @relation("Player2")
+  winnerGames  Game[]    @relation("Winner")
+  player1Rooms Room[]    @relation("Player1")
+  player2Rooms Room[]    @relation("Player2")
+  hostRooms    Room[]    @relation("Host")
+  messages     Message[]
+
+  @@index([email])
+  @@index([username])
+}
+
+model UserStats {
+  id       String @id @default(cuid())
+  userId   String @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wins     Int    @default(0)
+  losses   Int    @default(0)
+  draws    Int    @default(0)
+  totalGames Int  @default(0)
+}
+
+model Game {
+  id        String   @id @default(cuid())
+
+  roomId    String?  @unique
+  room      Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  player1Id String
+  player1   User     @relation("Player1", fields: [player1Id], references: [id], onDelete: Cascade)
+
+  player2Id String?
+  player2   User?    @relation("Player2", fields: [player2Id], references: [id], onDelete: SetNull)
+
+  winnerId  String?
+  winner    User?    @relation("Winner", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  moves     String   @default("[]")
+
+  board     String   @default("null")
+
+  currentPlayer String @default("player1")
+
+  status    String   @default("playing")
+
+  winType   String?
+
+  winPositions String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+model Room {
+  id        String   @id @default(cuid())
+  name      String
+  status    String   @default("waiting") // waiting, playing, completed
+  
+  hostId    String
+  host      User     @relation("Host", fields: [hostId], references: [id], onDelete: Cascade)
+  
+  player1Id String
+  player1   User     @relation("Player1", fields: [player1Id], references: [id], onDelete: Cascade)
+  
+  player2Id String?
+  player2   User?    @relation("Player2", fields: [player2Id], references: [id], onDelete: SetNull)
+  
+  game      Game?
+  
+  messages  Message[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([hostId])
+  @@index([player1Id])
+  @@index([player2Id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([roomId])
+}
