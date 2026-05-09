@@ -1,9 +1,11 @@
-# Backend Dockerfile
-FROM node:18-alpine
+FROM node:18-slim
 
 WORKDIR /app
 
 COPY package*.json ./
+
+RUN apt-get update -y && apt-get install -y openssl
+
 RUN npm ci
 
 COPY . .
